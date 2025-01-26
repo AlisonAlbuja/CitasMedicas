@@ -4,13 +4,13 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copiar el archivo requirements.txt
-COPY BACKEND/login/requirements.txt .
+COPY requirements.txt .
 
 # Instalar dependencias
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
 
-# Copiar todo el backend al contenedor
-COPY BACKEND/login /app
+# Copiar todos los archivos del contexto actual al contenedor
+COPY . .
 
 # Exponer el puerto de la aplicación
 EXPOSE 8000
