@@ -4,7 +4,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 import os
 
 # Configuraciones de JWT desde el archivo .env del microservicio de login
-SECRET_KEY = "supersecretkey123"  # Reemplázalo si quieres cargarlo dinámicamente
+SECRET_KEY = "supersecretkey123"  # Asegúrate de que sea consistente con el microservicio de login
 ALGORITHM = "HS256"
 
 def verify_admin(f):
@@ -14,15 +14,15 @@ def verify_admin(f):
             return jsonify({'error': 'Authorization header missing'}), 401
 
         try:
-            token = auth_header.split(" ")[1]
+            token = auth_header.split(" ")[1]  # Extraer el token después de "Bearer"
         except IndexError:
             return jsonify({'error': 'Invalid token format'}), 401
 
         try:
             # Decodificar el token JWT
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            role = payload.get('role')
-            if role != 'admin':
+            role_id = payload.get('role_id')  # Obtener el campo role_id
+            if role_id != 1:  # Validar que role_id sea 1 (admin)
                 return jsonify({'error': 'Access restricted to administrators'}), 403
         except ExpiredSignatureError:
             return jsonify({'error': 'Token has expired'}), 401
