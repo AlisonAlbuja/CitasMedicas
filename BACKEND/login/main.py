@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
 from database import Base, engine
 
@@ -11,6 +12,15 @@ app = FastAPI(
     title="Login Microservice",
     description="A standalone backend for user authentication",
     version="1.0.0"
+)
+
+# Configurar el middleware CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Cambia "*" por una lista específica de dominios si lo necesitas
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Endpoint raíz para verificar el estado del servicio
