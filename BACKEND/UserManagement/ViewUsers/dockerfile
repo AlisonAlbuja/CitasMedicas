@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el resto de los archivos del proyecto al contenedor
 COPY . .
+RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
 
 # Exponer el puerto interno del contenedor
 EXPOSE 9100
