@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el código fuente al contenedor
 COPY . .
+RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
 
 # Establecer las variables de entorno necesarias
 ENV FLASK_APP=main
