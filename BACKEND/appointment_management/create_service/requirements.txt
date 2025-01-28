@@ -1,4 +1,5 @@
-DB_HOST=your-mysql-host
-DB_USER=your-mysql-user
-DB_PASSWORD=your-mysql-password
-DB_NAME=gestion_citas
+fastapi==0.95.2
+pydantic==1.10.2
+mysql-connector-python==8.0.32
+python-dotenv==0.21.0
+uvicorn==0.22.0
