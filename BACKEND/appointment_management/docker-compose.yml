@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  create_service:
+    build: ./create_service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./create_service/.env
+
+  read_service:
+    build: ./read_service
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./read_service/.env
+
+  update_service:
+    build: ./update_service
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./update_service/.env
+
+  delete_service:
+    build: ./delete_service
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./delete_service/.env
+
+  mysql_db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: your-root-password
+      MYSQL_DATABASE: gestion_citas
+      MYSQL_USER: your-user
+      MYSQL_PASSWORD: your-password
+    ports:
+      - "3306:3306"
