@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../utils/api';
-import { jwtDecode } from 'jwt-decode'; // Cambiar a importación nombrada
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -48,6 +48,9 @@ const Login = () => {
                 required
             />
             <button type="submit">Iniciar Sesión</button>
+            <p>
+                ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+            </p>
         </form>
     );
 };
