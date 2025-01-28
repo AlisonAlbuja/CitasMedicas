@@ -1,0 +1,29 @@
+# 🚀 Archivos de configuración sensibles
+.env
+*.pem
+*.key
+
+# 🚀 Archivos generados por Python
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# 🚀 Archivos de entorno virtual
+venv/
+.env/
+
+# 🚀 Archivos generados por Docker
+*.tar
+.dockerignore
+
+# 🚀 Archivos de logs y caché
+logs/
+*.log
+*.pid
+*.out
+*.err
+
+# 🚀 Dependencias de Python
+pip-log.txt
+pip-delete-this-directory.txt

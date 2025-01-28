@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
 
 # Copiar todos los archivos del contexto actual al contenedor
 COPY . .
+RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
 
 # Exponer el puerto de la aplicación
 EXPOSE 8000
