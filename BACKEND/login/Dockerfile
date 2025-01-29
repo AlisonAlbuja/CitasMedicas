@@ -1,20 +1,20 @@
 FROM python:3.10-slim
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copiar el archivo requirements.txt
+# Copy the requirements.txt file
 COPY requirements.txt .
 
-# Instalar dependencias
+# Install dependencies
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
 
-# Copiar todos los archivos del contexto actual al contenedor
+# Copy all files from the current context to the container
 COPY . .
-RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
+RUN rm -f .env  # Remove the .env file from the container for security
 
-# Exponer el puerto de la aplicación
+# Expose the application port
 EXPOSE 8000
 
-# Comando de inicio
+# Startup command
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
