@@ -3,15 +3,29 @@ from app.database.mysql import get_connection
 
 router = APIRouter()
 
-@router.get("/read/{appointment_id}")
-async def read_appointment(appointment_id: int):
+@router.get("/appointments", tags=["appointments"])
+async def get_appointments():
+    """
+    Obtiene todas las citas almacenadas en la base de datos.
+    """
     connection = get_connection()
-    cursor = connection.cursor(dictionary=True)
-    query = "SELECT * FROM appointments WHERE id = %s"
-    cursor.execute(query, (appointment_id,))
-    result = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    if not result:
-        raise HTTPException(status_code=404, detail="Appointment not found")
-    return result
+    if not connection:
+        raise HTTPException(status_code=500, detail="Error en la conexión a la base de datos")
+
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT id, title, description, date, time FROM appointments")
+        appointments = cursor.fetchall()
+        
+        # Convertir resultados a una lista de diccionarios
+        results = [
+            {"id": row["id"], "title": row["title"], "description": row["description"], "date": row["date"], "time": row["time"]}
+            for row in appointments
+        ]
+        
+        return {"appointments": results}
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"Error al obtener citas: {str(err)}")
+    finally:
+        cursor.close()
+        connection.close()
