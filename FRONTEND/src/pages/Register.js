@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../utils/api";
 import { Box, Button, Container, Paper, TextField, Typography } from "@mui/material";
-import loginBg from "../statics/register.png"; // Imagen de fondo
+import registerBg from "../statics/register.png"; // Background image
 
 const Register = () => {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
@@ -12,10 +12,10 @@ const Register = () => {
     e.preventDefault();
     try {
       await registerUser(formData);
-      alert("Usuario registrado exitosamente.");
-      navigate("/"); // Redirigir al login después del registro
+      alert("User registered successfully.");
+      navigate("/"); // Redirect to login after registration
     } catch (error) {
-      alert("Error en el registro.");
+      alert("Registration failed.");
     }
   };
 
@@ -26,17 +26,17 @@ const Register = () => {
         height: "100vh",
       }}
     >
-      {/* Sección de la imagen de fondo */}
+      {/* Background image section */}
       <Box
         sx={{
           flex: 1,
-          backgroundImage: `url(${loginBg})`,
+          backgroundImage: `url(${registerBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       />
 
-      {/* Sección del formulario */}
+      {/* Registration form section */}
       <Container
         maxWidth="xs"
         sx={{
@@ -47,12 +47,15 @@ const Register = () => {
         }}
       >
         <Paper elevation={3} sx={{ padding: 3, textAlign: "center", borderRadius: 2 }}>
-          <Typography variant="h5" gutterBottom>
-            Registro
+          
+          {/* "REGISTER" Title */}
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            REGISTER
           </Typography>
+
           <form onSubmit={handleRegister}>
             <TextField
-              label="Usuario"
+              label="Username"
               variant="outlined"
               fullWidth
               margin="normal"
@@ -61,7 +64,7 @@ const Register = () => {
               required
             />
             <TextField
-              label="Correo"
+              label="Email"
               variant="outlined"
               fullWidth
               margin="normal"
@@ -71,7 +74,7 @@ const Register = () => {
               required
             />
             <TextField
-              label="Contraseña"
+              label="Password"
               type="password"
               variant="outlined"
               fullWidth
@@ -81,14 +84,14 @@ const Register = () => {
               required
             />
             <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-              Registrarse
+              Sign Up
             </Button>
           </form>
           <Box mt={2}>
             <Typography variant="body2">
-              ¿Ya tienes cuenta?{" "}
+              Already have an account?{" "}
               <a href="/" style={{ color: "#1976d2", textDecoration: "none" }}>
-                Inicia sesión aquí
+                Log in here
               </a>
             </Typography>
           </Box>
