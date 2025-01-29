@@ -7,4 +7,4 @@ class Appointment(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
     description: str = Field(..., min_length=5, max_length=500)
     date: datetime
-    time: str  # Puedes mejorar esto con un tipo `time`
+    time: str  
