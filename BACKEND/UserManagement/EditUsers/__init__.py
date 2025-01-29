@@ -5,10 +5,10 @@ from routes import init_routes
 def create_app():
     app = Flask(__name__)
     
-    # Configurar la base de datos
+    # Configure the database
     configure_database(app)
     
-    # Registrar las rutas
+    # Register the routes
     init_routes(app)
     
     return app

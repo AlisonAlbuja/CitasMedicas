@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from routes.user import user_bp
 
-# Crear instancia de la aplicación FastAPI
+# Create an instance of the FastAPI application
 app = FastAPI()
 
-# Incluir las rutas del microservicio
+# Include the microservice routes
 app.include_router(user_bp)
 
-# Endpoint raíz para verificar que el microservicio esté funcionando
+# Root endpoint to check if the microservice is running
 @app.get("/")
 def root():
     return {"message": "DeleteUsers microservice is running"}

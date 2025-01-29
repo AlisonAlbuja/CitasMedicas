@@ -9,16 +9,16 @@ user_bp = APIRouter()
 @user_bp.delete("/users/{user_id}", response_model=dict)
 def delete_user(
     user_id: int, 
-    username: str = Body(..., embed=True),  # Recibe el nombre del usuario en el cuerpo de la solicitud
+    username: str = Body(..., embed=True),  # Receive the username in the request body
     db: Session = Depends(get_db),
     is_admin: bool = Depends(validate_admin)
 ):
-    # Buscar al usuario por ID y nombre
+    # Search for the user by ID and name
     user = db.query(User).filter(User.id == user_id, User.username == username).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado o datos incorrectos")
+        raise HTTPException(status_code=404, detail="User not found or incorrect data")
     
-    # Eliminar al usuario
+    # Delete the user
     db.delete(user)
     db.commit()
-    return {"message": f"Usuario con ID {user_id} y nombre {username} eliminado exitosamente"}
+    return {"message": f"User with ID {user_id} and name {username} successfully deleted"}

@@ -10,14 +10,14 @@ ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 def validate_admin(Authorization: str = Header(None)):
     if not Authorization:
-        raise HTTPException(status_code=401, detail="Token requerido")
+        raise HTTPException(status_code=401, detail="Token required")
     
     try:
         token = Authorization.split(" ")[1]
         decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         role_id = decoded.get("role_id")
         if role_id != 1:  
-            raise HTTPException(status_code=403, detail="Permiso denegado. Solo administradores pueden realizar esta acción.")
+            raise HTTPException(status_code=403, detail="Permission denied. Only administrators can perform this action.")
         return decoded  
     except JWTError:
-        raise HTTPException(status_code=401, detail="Token inválido o expirado")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")

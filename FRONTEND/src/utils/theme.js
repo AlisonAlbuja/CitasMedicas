@@ -3,13 +3,13 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#1976d2', // Azul por defecto
+            main: '#1976d2',
         },
         secondary: {
-            main: '#dc004e', // Rojo por defecto
+            main: '#dc004e',
         },
         background: {
-            default: '#e3f2fd' // Celeste claro para el fondo global
+            default: '#e3f2fd' 
         }
     },
     typography: {

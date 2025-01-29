@@ -1,18 +1,18 @@
 FROM python:3.9-slim 
 
-# Establecer el directorio de trabajo
+# Set the working directory
 WORKDIR /app
 
-# Copiar y instalar dependencias
+# Copy and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar solo archivos necesarios, EXCLUYENDO .env y archivos sensibles
+# Copy only necessary files, EXCLUDING .env and sensitive files
 COPY . .
-RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
+RUN rm -f .env  # Remove .env from the container for security
 
-# Exponer el puerto
+# Expose the port
 EXPOSE 5000
 
-# Comando para iniciar el microservicio
+# Command to start the microservice
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]

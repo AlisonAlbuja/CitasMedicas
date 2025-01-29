@@ -1,21 +1,21 @@
-# Usar una imagen base de Python
+# Use a base Python image
 FROM python:3.10-slim
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copiar el archivo de dependencias
+# Copy the dependencies file
 COPY requirements.txt .
 
-# Instalar las dependencias necesarias
+# Install the required dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de los archivos del proyecto al contenedor
+# Copy the rest of the project files into the container
 COPY . .
-RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
+RUN rm -f .env  # Remove the .env file from the container for security
 
-# Exponer el puerto interno del contenedor
+# Expose the internal port of the container
 EXPOSE 9100
 
-# Comando para ejecutar la aplicación
+# Command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9100", "--reload"]

@@ -13,8 +13,8 @@ router = APIRouter(
 @router.get("/", response_model=list[UserSchema], dependencies=[Depends(verify_admin)])
 async def get_all_users(db: Session = Depends(get_db)):
     """
-    Endpoint para obtener todos los usuarios.
-    Solo accesible por administradores.
+    Endpoint to get all users.
+    Only accessible by administrators.
     """
     users = db.query(User).all()
     return users

@@ -2,32 +2,32 @@ import React, { useState } from "react";
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
 
 const DoctorDashboard = () => {
-    // Datos simulados de servicios médicos
+    // Simulated medical services data
     const [services, setServices] = useState([
-        { id: 1, name: "Consulta General", price: "$50", duration: "30 min" },
-        { id: 2, name: "Chequeo Cardiológico", price: "$120", duration: "45 min" },
-        { id: 3, name: "Examen de Sangre", price: "$80", duration: "20 min" },
+        { id: 1, name: "General Consultation", price: "$50", duration: "30 min" },
+        { id: 2, name: "Cardiological Checkup", price: "$120", duration: "45 min" },
+        { id: 3, name: "Blood Test", price: "$80", duration: "20 min" },
     ]);
 
-    // Función para agregar un nuevo servicio
+    // Function to add a new service
     const handleCreate = () => {
-        const newService = { id: Date.now(), name: "Nuevo Servicio", price: "$100", duration: "30 min" };
+        const newService = { id: Date.now(), name: "New Service", price: "$100", duration: "30 min" };
         setServices([...services, newService]);
     };
 
-    // Función para ver detalles de un servicio
+    // Function to view service details
     const handleRead = (id) => {
-        alert(`Viendo detalles del servicio ID: ${id}`);
+        alert(`Viewing details of service ID: ${id}`);
     };
 
-    // Función para actualizar un servicio
+    // Function to update a service
     const handleUpdate = (id) => {
-        alert(`Editando servicio ID: ${id}`);
+        alert(`Editing service ID: ${id}`);
     };
 
-    // Función para eliminar un servicio
+    // Function to delete a service
     const handleDelete = (id) => {
-        const confirmDelete = window.confirm("¿Estás seguro de eliminar este servicio?");
+        const confirmDelete = window.confirm("Are you sure you want to delete this service?");
         if (confirmDelete) {
             setServices(services.filter(service => service.id !== id));
         }
@@ -36,7 +36,7 @@ const DoctorDashboard = () => {
     return (
         <div style={{ padding: "20px" }}>
             <Typography variant="h4" gutterBottom style={{ textAlign: "center", fontWeight: "bold" }}>
-                Servicios Médicos
+                Medical Services
             </Typography>
             <Button 
                 variant="contained" 
@@ -44,17 +44,17 @@ const DoctorDashboard = () => {
                 onClick={handleCreate} 
                 style={{ marginBottom: "20px" }}
             >
-                Crear Servicio
+                Create Service
             </Button>
 
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead style={{ backgroundColor: "#1976d2" }}>
                         <TableRow>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Nombre del Servicio</TableCell>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Precio</TableCell>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Duración</TableCell>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Acciones</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Service Name</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Price</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Duration</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -71,7 +71,7 @@ const DoctorDashboard = () => {
                                         onClick={() => handleRead(service.id)} 
                                         style={{ marginRight: "8px" }}
                                     >
-                                        Ver
+                                        View
                                     </Button>
                                     <Button 
                                         variant="contained" 
@@ -80,7 +80,7 @@ const DoctorDashboard = () => {
                                         onClick={() => handleUpdate(service.id)} 
                                         style={{ marginRight: "8px" }}
                                     >
-                                        Editar
+                                        Edit
                                     </Button>
                                     <Button 
                                         variant="contained" 
@@ -88,7 +88,7 @@ const DoctorDashboard = () => {
                                         size="small" 
                                         onClick={() => handleDelete(service.id)}
                                     >
-                                        Eliminar
+                                        Delete
                                     </Button>
                                 </TableCell>
                             </TableRow>

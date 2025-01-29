@@ -5,16 +5,16 @@ from routes import init_routes
 def create_app():
     app = Flask(__name__)
     
-    # Configurar la base de datos
+    # Configure the database
     configure_database(app)
     
-    # Registrar las rutas
+    # Register the routes
     init_routes(app)
     
-    # Ruta raíz
+    # Root route
     @app.route("/")
     def home():
-        return "¡Bienvenido al servicio de gestión de usuarios!"
+        return "Welcome to the user management service!"
 
     return app
 

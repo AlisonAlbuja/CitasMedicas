@@ -1,26 +1,26 @@
-# Imagen base de Python
+# Python base image
 FROM python:3.9
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copiar el archivo de dependencias
+# Copy the dependencies file
 COPY requirements.txt .
 
-# Instalar las dependencias
+# Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el código fuente al contenedor
+# Copy the source code into the container
 COPY . .
-RUN rm -f .env  # Eliminar el .env del contenedor por seguridad
+RUN rm -f .env  # Remove the .env from the container for security
 
-# Establecer las variables de entorno necesarias
+# Set the necessary environment variables
 ENV FLASK_APP=main
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV PYTHONPATH=/app
 
-# Exponer un nuevo puerto
+# Expose a new port
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación en el nuevo puerto
+# Command to run the application on the new port
 CMD ["flask", "run", "--port=8080"]

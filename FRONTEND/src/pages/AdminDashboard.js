@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
 
 const AdminDashboard = () => {
-    // Datos simulados de usuarios
+    // Simulated user data
     const [users, setUsers] = useState([
         { id: 1, firstName: "Ramesh", lastName: "Fadatare", email: "ram@gmail.com" },
         { id: 2, firstName: "John", lastName: "Cena", email: "john@gmail.com" },
@@ -10,19 +10,19 @@ const AdminDashboard = () => {
         { id: 4, firstName: "Admin", lastName: "admin", email: "admin@gmail.com" },
     ]);
 
-    // Función para ver detalles de usuario
+    // Function to view user details
     const handleView = (id) => {
         alert(`Viewing details of user ID: ${id}`);
     };
 
-    // Función para editar usuario
+    // Function to edit user
     const handleEdit = (id) => {
         alert(`Editing user ID: ${id}`);
     };
 
-    // Función para eliminar usuario
+    // Function to delete user
     const handleDelete = (id) => {
-        const confirmDelete = window.confirm("¿Estás seguro de eliminar este usuario?");
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
         if (confirmDelete) {
             setUsers(users.filter(user => user.id !== id));
         }
@@ -31,20 +31,20 @@ const AdminDashboard = () => {
     return (
         <div style={{ padding: "20px" }}>
             <Typography variant="h4" gutterBottom style={{ textAlign: "center", fontWeight: "bold" }}>
-                Lista de Usuarios
+                User List
             </Typography>
             <Button variant="contained" color="primary" style={{ marginBottom: "20px" }}>
-                Agregar Usuario
+                Add User
             </Button>
 
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead style={{ backgroundColor: "#1976d2" }}>
                         <TableRow>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Nombre</TableCell>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Apellido</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>First Name</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Last Name</TableCell>
                             <TableCell style={{ color: "white", fontWeight: "bold" }}>Email</TableCell>
-                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Acciones</TableCell>
+                            <TableCell style={{ color: "white", fontWeight: "bold" }}>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
                                         onClick={() => handleView(user.id)} 
                                         style={{ marginRight: "8px" }}
                                     >
-                                        Ver
+                                        View
                                     </Button>
                                     <Button 
                                         variant="contained" 
@@ -70,7 +70,7 @@ const AdminDashboard = () => {
                                         onClick={() => handleEdit(user.id)} 
                                         style={{ marginRight: "8px" }}
                                     >
-                                        Editar
+                                        Edit
                                     </Button>
                                     <Button 
                                         variant="contained" 
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
                                         size="small" 
                                         onClick={() => handleDelete(user.id)}
                                     >
-                                        Eliminar
+                                        Delete
                                     </Button>
                                 </TableCell>
                             </TableRow>
