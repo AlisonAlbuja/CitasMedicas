@@ -2,38 +2,40 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
+from routes.protected import router as protected_router  # Importar rutas protegidas
 from database import Base, engine
 
-# Initialize the database
+# Inicializar la base de datos
 Base.metadata.create_all(bind=engine)
 
-# Create the app
+# Crear la aplicación
 app = FastAPI(
     title="Login Microservice",
     description="A standalone backend for user authentication",
     version="1.0.0"
 )
 
-# Configure CORS middleware
+# Configurar CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change "*" to a specific list of domains if needed
+    allow_origins=["*"],  # Cambiar "*" por una lista de dominios específicos si es necesario
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Root endpoint to check service status
+# Endpoint raíz para verificar el estado del servicio
 @app.get("/")
 def root():
     return JSONResponse({"message": "Login microservice is running successfully."})
 
-# Include authentication service routes
+# Incluir rutas de autenticación y rutas protegidas
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(protected_router, prefix="/protected", tags=["Protected"])
 
-# Print all registered routes for debugging
+# Imprimir todas las rutas registradas (para debugging)
 for route in app.routes:
-    if hasattr(route, "methods"):  # Check if the object has the 'methods' attribute
+    if hasattr(route, "methods"):
         print(f"Route: {route.path} | Methods: {route.methods}")
     else:
         print(f"Route: {route.path} (No HTTP methods, probably a Mount)")
