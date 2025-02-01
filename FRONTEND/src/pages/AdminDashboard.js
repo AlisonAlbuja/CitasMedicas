@@ -10,6 +10,9 @@ const AdminDashboard = () => {
         { id: 4, firstName: "Admin", lastName: "admin", email: "admin@gmail.com" },
     ]);
 
+    // URL del microservicio DeleteUsers (Cambiar cuando se suba a AWS)
+    const DELETE_USERS_URL = "http://localhost:5000/users"; // ⚠️ Cambiar a la IP del backend en AWS cuando lo subas
+
     // Function to view user details
     const handleView = (id) => {
         alert(`Viewing details of user ID: ${id}`);
@@ -20,11 +23,40 @@ const AdminDashboard = () => {
         alert(`Editing user ID: ${id}`);
     };
 
-    // Function to delete user
-    const handleDelete = (id) => {
+    // Function to delete user from backend
+    const handleDeleteUser = async (id, username) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-        if (confirmDelete) {
+        if (!confirmDelete) return;
+
+        const token = localStorage.getItem("token"); // Obtener el token de autenticación
+
+        if (!token) {
+            alert("You are not authenticated. Please log in.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${DELETE_USERS_URL}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // Se envía el token en el encabezado
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username }) // Se envía el nombre del usuario en el body
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Error deleting user");
+            }
+
+            // Eliminar el usuario de la tabla si la petición es exitosa
             setUsers(users.filter(user => user.id !== id));
+            alert(`User ${username} deleted successfully!`);
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            alert("Failed to delete user. Please try again.");
         }
     };
 
@@ -76,7 +108,7 @@ const AdminDashboard = () => {
                                         variant="contained" 
                                         color="error" 
                                         size="small" 
-                                        onClick={() => handleDelete(user.id)}
+                                        onClick={() => handleDeleteUser(user.id, user.firstName)}
                                     >
                                         Delete
                                     </Button>
