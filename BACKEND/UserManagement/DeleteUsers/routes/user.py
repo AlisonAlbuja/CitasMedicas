@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User
@@ -9,23 +9,16 @@ user_bp = APIRouter()
 @user_bp.delete("/users/{user_id}", response_model=dict)
 def delete_user(
     user_id: int, 
+    username: str = Body(..., embed=True),  # Recibe el nombre del usuario en el cuerpo de la solicitud
     db: Session = Depends(get_db),
-    current_user: dict = Depends(validate_admin)  
+    is_admin: bool = Depends(validate_admin)
 ):
-    """
-    Elimina un usuario solo si el que lo solicita es un administrador.
-    """
-    # Verificar si el usuario autenticado tiene rol de administrador
-    if current_user["role_id"] != 1:
-        raise HTTPException(status_code=403, detail="Permission denied. Only administrators can perform this action.")
-
-    # Buscar al usuario en la base de datos
-    user = db.query(User).filter(User.id == user_id).first()
+    # Buscar al usuario por ID y nombre
+    user = db.query(User).filter(User.id == user_id, User.username == username).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Eliminar el usuario
+        raise HTTPException(status_code=404, detail="Usuario no encontrado o datos incorrectos")
+    
+    # Eliminar al usuario
     db.delete(user)
     db.commit()
-
-    return {"message": f"User with ID {user_id} successfully deleted"}
+    return {"message": f"Usuario con ID {user_id} y nombre {username} eliminado exitosamente"}

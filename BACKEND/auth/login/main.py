@@ -3,10 +3,11 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
 from routes.protected import router as protected_router  # Importar rutas protegidas
-from database import Base, engine
+from database import Base
 
-# Inicializar la base de datos
-Base.metadata.create_all(bind=engine)
+# No se usa create_all aquí porque tenemos múltiples motores
+# Base.metadata.create_all(bind=default_engine)
+# Base.metadata.create_all(bind=doctor_engine)
 
 # Crear la aplicación
 app = FastAPI(

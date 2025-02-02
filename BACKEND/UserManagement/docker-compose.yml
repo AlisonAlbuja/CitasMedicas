@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  user_management_db:
+    image: mysql:latest
+    container_name: user_management_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: login_management
+      MYSQL_USER: usuario_remoto
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persistencia de datos
+
   delete_users:
     build: ./DeleteUsers
     container_name: delete_users_service
@@ -10,7 +24,7 @@ services:
       - ./DeleteUsers/.env
     restart: always
     depends_on:
-      - edit_users
+      - user_management_db  # Asegurar que MySQL esté corriendo antes de iniciar este servicio
 
   edit_users:
     build: ./EditUsers
@@ -20,6 +34,8 @@ services:
     env_file:
       - ./EditUsers/.env
     restart: always
+    depends_on:
+      - user_management_db  # Asegurar que MySQL esté corriendo antes de iniciar este servicio
 
   view_users:
     build: ./ViewUsers
@@ -29,3 +45,8 @@ services:
     env_file:
       - ./ViewUsers/.env
     restart: always
+    depends_on:
+      - user_management_db  # Asegurar que MySQL esté corriendo antes de iniciar este servicio
+
+volumes:
+  mysql_data:  # Definir volumen para que MySQL no pierda datos al reiniciar

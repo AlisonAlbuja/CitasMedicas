@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import UserCreate, UserLogin
 from models import User
-from database import SessionLocal
+from database import get_db  
 from utils import get_password_hash, verify_password, create_access_token, decode_access_token
 from fastapi.security import OAuth2PasswordBearer
 import redis
@@ -18,24 +18,25 @@ redis_client = redis.Redis(host=redis_host, port=redis_port, decode_responses=Tr
 # 📌 Esquema de autenticación OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login") 
 
-# 📌 Función para obtener la sesión de la base de datos
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# ✅ **Funciones para obtener la DB según el rol**
+def get_admin_db():
+    return get_db("1")  # Base de datos de Administradores
+
+def get_doctor_db():
+    return get_db("2")  # Base de datos de Doctores
 
 # 📌 Registro de usuario (Solo Pacientes)
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(user: UserCreate):
+    """Registra un usuario con rol de Paciente en la base de datos de Administradores"""
+    db = get_admin_db()  # Los pacientes se guardan en la DB de admins
     existing_user = db.query(User).filter(User.username == user.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    patient_role_id = 3  # 🔧 Corrección del ID de pacientes
+    patient_role_id = 3  
     hashed_password = get_password_hash(user.password)
-    
+
     new_user = User(
         username=user.username,
         email=user.email,
@@ -49,11 +50,24 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
     return {"message": "User registered successfully as patient"} 
 
-# 📌 Login con generación de token JWT
+# 📌 Login con soporte para múltiples bases de datos
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    user_in_db = db.query(User).filter(User.username == user.username).first()
-    
+def login(user: UserLogin):
+    """ Intenta autenticar al usuario en todas las bases de datos disponibles """
+    user_in_db = None
+    user_role = None
+    db = None
+
+    for role_id, get_db_func in [("1", get_admin_db), ("2", get_doctor_db)]:  # 🔥 Solo Admin y Doctores
+        try:
+            db = get_db_func()  
+            user_in_db = db.query(User).filter(User.username == user.username).first()
+            if user_in_db:
+                user_role = role_id
+                break  # 🔥 Si encuentra el usuario, detiene la búsqueda
+        except Exception as e:
+            continue  
+
     if not user_in_db or not verify_password(user.password, user_in_db.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
@@ -65,9 +79,9 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     return {"access_token": token, "token_type": "bearer"}
 
-# 📌 Nueva función para validar token y extraer datos del usuario
+# 📌 Validar token y obtener información del usuario autenticado
 @router.get("/validate-token")
-def validate_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def validate_token(token: str = Depends(oauth2_scheme)):
     """Valida el token y devuelve la información del usuario autenticado"""
     try:
         # 📌 Revisar si el token está en la lista negra de Redis
@@ -80,6 +94,10 @@ def validate_token(token: str = Depends(oauth2_scheme), db: Session = Depends(ge
             raise HTTPException(status_code=401, detail="Invalid token")
 
         username = payload.get("sub")
+        role_id = str(payload.get("role_id"))  
+
+        # 📌 Conectar a la base de datos correspondiente según el `role_id`
+        db = get_db(role_id)
         user = db.query(User).filter(User.username == username).first()
         
         if not user:
