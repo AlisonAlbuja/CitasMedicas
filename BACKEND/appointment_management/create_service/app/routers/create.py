@@ -1,22 +1,28 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Request
 from app.database.mysql import get_connection
 from app.models.appointment import Appointment
+from app.utils import verify_doctor  # ✅ Importar la validación de JWT
 
 router = APIRouter()
 
 @router.post("/create")
-async def create_appointment(appointment: Appointment):
+async def create_appointment(
+    appointment: Appointment, 
+    user: dict = Depends(verify_doctor)  # 🔥 Solo Doctores pueden crear citas
+):
+    """ Crea una nueva cita si el usuario autenticado es un Doctor. """
+    
     connection = get_connection()
     if not connection:
         raise HTTPException(status_code=500, detail="Error en la conexión a la base de datos")
-    
+
     cursor = connection.cursor()
     try:
         query = """
-            INSERT INTO appointments (title, description, date, time)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO appointments (title, description, date, time, nombre_doctor)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        values = (appointment.title, appointment.description, appointment.date, appointment.time)
+        values = (appointment.title, appointment.description, appointment.date, appointment.time, user["sub"])  
         cursor.execute(query, values)
         connection.commit()
 

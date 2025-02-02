@@ -1,7 +1,13 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from app.routers.create import router as create_router
 
 app = FastAPI()
 
-app.include_router(create_router, prefix="/api/v1")
+# 🔹 Endpoint raíz para verificar que el servicio está corriendo
+@app.get("/")
+async def root():
+    return JSONResponse(content={"message": "Microservicio de creación de citas funcionando correctamente 🚀"})
 
+# 🔹 Registrar el router de creación de citas
+app.include_router(create_router, prefix="/api/v1")

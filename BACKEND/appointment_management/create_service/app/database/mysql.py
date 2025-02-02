@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_connection():
+    """Establece una conexión con la base de datos de doctores."""
     try:
         connection = pymysql.connect(
             host=os.getenv("DB_HOST"),
@@ -15,7 +16,8 @@ def get_connection():
             port=int(os.getenv("DB_PORT", 3306)),
             cursorclass=pymysql.cursors.DictCursor
         )
+        print("✅ Conexión exitosa a la base de datos")
         return connection
     except pymysql.MySQLError as err:
         print(f"❌ Error al conectar con la base de datos: {err}")
-        return None
+        raise  # Lanza el error para evitar fallos silenciosos
