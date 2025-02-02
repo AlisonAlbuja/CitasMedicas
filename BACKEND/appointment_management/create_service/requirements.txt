@@ -3,3 +3,5 @@ pydantic==1.10.2
 mysql-connector-python==8.0.32
 python-dotenv==0.21.0
 uvicorn==0.22.0
+pymysql
+
