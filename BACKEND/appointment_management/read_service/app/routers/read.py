@@ -1,12 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.database.mysql import get_connection
+from app.utils import verify_user  # ✅ Importamos la validación local del token
 
 router = APIRouter()
 
 @router.get("/appointments", tags=["appointments"])
-async def get_appointments():
+async def get_appointments(user: dict = Depends(verify_user)):  
     """
-    Obtiene todas las citas almacenadas en la base de datos.
+    Obtiene todas las citas almacenadas en la base de datos, autenticando al usuario.
     """
     connection = get_connection()
     if not connection:
@@ -17,7 +18,6 @@ async def get_appointments():
         cursor.execute("SELECT id, title, description, date, time FROM appointments")
         appointments = cursor.fetchall()
         
-        # Convertir resultados a una lista de diccionarios
         results = [
             {"id": row["id"], "title": row["title"], "description": row["description"], "date": row["date"], "time": row["time"]}
             for row in appointments
@@ -32,9 +32,9 @@ async def get_appointments():
 
 
 @router.get("/appointments/{appointment_id}", tags=["appointments"])
-async def get_appointment_by_id(appointment_id: int):
+async def get_appointment_by_id(appointment_id: int, user: dict = Depends(verify_user)):  
     """
-    Obtiene una cita específica por su ID.
+    Obtiene una cita específica por su ID, autenticando al usuario.
     """
     connection = get_connection()
     if not connection:

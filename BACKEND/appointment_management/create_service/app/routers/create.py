@@ -19,7 +19,7 @@ async def create_appointment(
     cursor = connection.cursor()
     try:
         query = """
-            INSERT INTO appointments (title, description, date, time, nombre_doctor)
+            INSERT INTO appointments (title, description, date, time, doctor_name)
             VALUES (%s, %s, %s, %s, %s)
         """
         values = (appointment.title, appointment.description, appointment.date, appointment.time, user["sub"])  

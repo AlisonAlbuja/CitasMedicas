@@ -4,3 +4,5 @@ mysql-connector-python==8.0.32
 python-dotenv==0.21.0
 uvicorn==0.22.0
 pymysql
+requests
+PyJWT==2.6.0
