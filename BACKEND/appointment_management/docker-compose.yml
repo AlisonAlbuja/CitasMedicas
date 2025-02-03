@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql:latest
+    container_name: appointment_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appointment_management
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: nala1234
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+    networks:
+      - appointment_network
+
+  create_service:
+    build: ./create_service
+    container_name: create_service
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - "8010:8010"
+    env_file:
+      - ./create_service/.env
+    restart: always
+    networks:
+      - appointment_network
+
+  delete_service:
+    build: ./delete_service
+    container_name: delete_service
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - "8011:8011"
+    env_file:
+      - ./delete_service/.env
+    restart: always
+    networks:
+      - appointment_network
+
+  read_service:
+    build: ./read_service
+    container_name: read_service
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - "8012:8012"
+    env_file:
+      - ./read_service/.env
+    restart: always
+    networks:
+      - appointment_network
+
+  update_service:
+    build: ./update_service
+    container_name: update_service
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - "8013:8013"
+    env_file:
+      - ./update_service/.env
+    restart: always
+    networks:
+      - appointment_network
+
+volumes:
+  mysql_data:
+
+networks:
+  appointment_network:
+    driver: bridge
