@@ -20,4 +20,4 @@ RUN pip install --no-cache-dir mysql-connector-python==8.0.32
 COPY . /app/
 
 # Comando para ejecutar el microservicio
-CMD ["uvicorn", "app.routers.main:app", "--host", "0.0.0.0", "--port", "8010"]
+CMD ["uvicorn", "app.routers.main:app", "--host", "0.0.0.0", "--port", "8001"]

@@ -29,7 +29,7 @@ services:
       mysql_db:
         condition: service_healthy
     ports:
-      - "8010:8010"
+      - "8001:8001"
     env_file:
       - ./create_service/.env
     restart: always
@@ -43,7 +43,7 @@ services:
       mysql_db:
         condition: service_healthy
     ports:
-      - "8011:8011"
+      - "8004:8004"
     env_file:
       - ./delete_service/.env
     restart: always
@@ -57,7 +57,7 @@ services:
       mysql_db:
         condition: service_healthy
     ports:
-      - "8012:8012"
+      - "8002:8002"
     env_file:
       - ./read_service/.env
     restart: always
@@ -71,7 +71,7 @@ services:
       mysql_db:
         condition: service_healthy
     ports:
-      - "8013:8013"
+      - "8003:8003"
     env_file:
       - ./update_service/.env
     restart: always

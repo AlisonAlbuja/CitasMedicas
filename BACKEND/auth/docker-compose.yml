@@ -26,7 +26,7 @@ services:
     build: ./logout  # 📌 Ruta del Dockerfile de logout
     container_name: logout-service
     ports:
-      - "8001:8001"
+      - "8005:8005"  # 📌 Cambio de puerto de 8001 a 8005
     env_file:
       - ./logout/.env  # 📌 Archivo de entorno dentro de logout
     depends_on:
