@@ -5,14 +5,15 @@ FROM python:3.9
 WORKDIR /app
 
 # Copy the dependencies file
-COPY requirements.txt .
+COPY requirements.txt ./
+
+RUN pip install --upgrade pip 
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the source code into the container
 COPY . .
-RUN rm -f .env  # Remove the .env from the container for security
 
 # Set the necessary environment variables
 ENV FLASK_APP=main

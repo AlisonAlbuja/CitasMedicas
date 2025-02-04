@@ -4,12 +4,12 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy and install dependencies
-COPY requirements.txt .
+COPY requirements.txt ./
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy only necessary files, EXCLUDING .env and sensitive files
 COPY . .
-RUN rm -f .env  # Remove .env from the container for security
 
 # Expose the port
 EXPOSE 5000
