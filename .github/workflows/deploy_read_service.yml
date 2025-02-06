@@ -1,0 +1,114 @@
+name: Docker Image CI/CD for Read Appointment Service
+
+on:
+  push:
+    branches:
+      - test
+    paths:
+      - 'BACKEND/appointment_management/read_service/**'
+  pull_request:
+    paths:
+      - 'BACKEND/appointment_management/read_service/**'
+    branches: ["test", "main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 📥 Paso 1: Checkout del repositorio
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 🛠️ Paso 2: Verificar estructura del repositorio en GitHub Actions
+    - name: Debug repository structure
+      run: |
+        echo "📂 Listando archivos en el workspace..."
+        ls -R $GITHUB_WORKSPACE
+
+    # 🔑 Paso 3: Login en Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # 🐳 Paso 4: Construcción de la imagen Docker
+    - name: Build Docker image
+      run: |
+        docker build $GITHUB_WORKSPACE/BACKEND/appointment_management/read_service/. \
+          --file $GITHUB_WORKSPACE/BACKEND/appointment_management/read_service/Dockerfile \
+          --build-arg DB_HOST=${{ secrets.DB_HOST }} \
+          --build-arg DB_USER=${{ secrets.DB_USER }} \
+          --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          --build-arg DB_NAME=${{ secrets.DB_NAME }} \
+          --build-arg DB_PORT=${{ secrets.DB_PORT }} \
+          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_READ_SERVICE }} \
+          -t ${{ secrets.DOCKER_USERNAME }}/read_service:latest
+
+    # 📤 Paso 5: Subir la imagen a Docker Hub
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/read_service:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    # 📡 Paso 1: Conectar al servidor EC2 usando SSH
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.EC2_HOST_READ_SERVICE }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🔄 Exportando variables de entorno..."
+          echo "export DB_HOST=${{ secrets.DB_HOST }}" >> ~/.bashrc
+          echo "export DB_USER=${{ secrets.DB_USER }}" >> ~/.bashrc
+          echo "export DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ~/.bashrc
+          echo "export DB_NAME=${{ secrets.DB_NAME }}" >> ~/.bashrc
+          echo "export DB_PORT=${{ secrets.DB_PORT }}" >> ~/.bashrc
+          echo "export SERVER_PORT=${{ secrets.SERVER_PORT_READ_SERVICE }}" >> ~/.bashrc
+          source ~/.bashrc
+
+          echo "📦 Navegando al directorio del proyecto..."
+          cd ~/appHospital/BACKEND/appointment_management/read_service
+
+          echo "🛠️ Verificando si Docker está instalado..."
+          if ! command -v docker &> /dev/null; then
+            echo "🔧 Instalando Docker..."
+            sudo apt update -y
+            sudo apt install -y docker.io
+            sudo systemctl start docker
+            sudo usermod -aG docker ubuntu
+          fi
+
+          echo "🛑 Deteniendo y eliminando contenedor previo..."
+          sudo docker stop read_service || true
+          sudo docker rm read_service || true
+          
+          echo "⬇️ Descargando la última imagen desde Docker Hub..."
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/read_service:latest
+          
+          echo "🚀 Ejecutando el nuevo contenedor en el puerto ${{ secrets.SERVER_PORT_READ_SERVICE }}..."
+          sudo docker run -d \
+            --name read_service \
+            -p 8002:8002 \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
+            -e SERVER_PORT=${{ secrets.SERVER_PORT_READ_SERVICE }} \
+            ${{ secrets.DOCKER_USERNAME }}/read_service:latest
+
+          echo "🔍 Verificando si el contenedor está corriendo..."
+          if sudo docker ps -f name=read_service | grep read_service; then
+            echo "✅ Contenedor 'read_service' corriendo correctamente."
+          else
+            echo "❌ Error al iniciar el contenedor. Revisa los logs."
+            exit 1
+          fi
