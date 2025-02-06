@@ -3,7 +3,7 @@ name: Docker Image CI/CD for Login Service
 on:
   push:
     branches:
-      - Folder-Organization  # ✅ Se ejecuta solo en esta rama
+      - Folder-Organization  
     paths:
       - 'BACKEND/auth/login/**'
   pull_request:
