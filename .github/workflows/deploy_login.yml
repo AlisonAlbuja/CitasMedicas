@@ -8,7 +8,7 @@ on:
       - 'BACKEND/auth/login/**'
   pull_request:
     branches:
-      - Folder-Organization  # ✅ Se ejecuta en PRs hacia esta rama
+      - Folder-Organization  
       - test
       - main
     paths:
