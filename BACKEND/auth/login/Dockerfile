@@ -4,10 +4,12 @@ FROM python:3.10-slim
 WORKDIR /app
  
 # Copy the requirements.txt file
-COPY requirements.txt .
- 
+COPY requirements.txt ./
+
+RUN pip install --upgrade pip 
+
 # Install dependencies
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
  
 # Copy all files, including .env
 COPY . .
