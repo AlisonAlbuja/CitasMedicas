@@ -1,30 +1,56 @@
-import jwt
-from fastapi import Request, HTTPException, Depends
-from jwt import ExpiredSignatureError, InvalidTokenError
+import os
+import requests
+from fastapi import HTTPException, Header
+from dotenv import load_dotenv
 
-# 🔹 Configuración del JWT (debe coincidir con el servicio de login)
-SECRET_KEY = "supersecretkey123"  # Debe ser la misma clave que usa `login-service`
-ALGORITHM = "HS256"
+# Cargar variables de entorno desde .env
+load_dotenv()
 
-def verify_user(request: Request):
-    """ Verifica el JWT del usuario sin depender de `login-service` """
-    auth_header = request.headers.get('Authorization')
+# URL del servicio de login en AWS
+LOGIN_SERVICE_URL = os.getenv("LOGIN_SERVICE_URL", "http://34.202.7.176:8000/auth/validate-token")
 
-    if not auth_header:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
+def test_login_service_connection():
+    """
+    Prueba la conexión con el microservicio de Login en AWS.
+    """
+    try:
+        response = requests.get(LOGIN_SERVICE_URL)
+        if response.status_code == 200:
+            print(f"✅ Conexión exitosa con {LOGIN_SERVICE_URL}")
+        else:
+            print(f"⚠ Error en conexión: {response.status_code} - {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ No se pudo conectar al servicio de Login: {str(e)}")
+
+def verify_user(Authorization: str = Header(None)):
+    """
+    Valida si el usuario autenticado tiene un token válido consultando el servicio de Login en AWS.
+    """
+    if not Authorization:
+        raise HTTPException(status_code=401, detail="Token requerido")
 
     try:
-        # Extraer el token del formato "Bearer <token>"
-        token = auth_header.split(" ")[1]
-    except IndexError:
-        raise HTTPException(status_code=401, detail="Invalid token format")
+        token = Authorization.split(" ")[1]
 
-    try:
-        # 🔥 Decodificar el token localmente sin llamar a `login-service`
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload  # Devuelve los datos del usuario autenticado
+        # 📌 Hacer petición HTTP al servicio de Login para validar el token
+        response = requests.get(LOGIN_SERVICE_URL, headers={"Authorization": f"Bearer {token}"})
 
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        print(f"🔄 Enviando token para validación en {LOGIN_SERVICE_URL}...")
+
+        if response.status_code != 200:
+            print(f"⚠ Error en validación de token: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=401, detail="Token inválido o expirado")
+
+        # 📌 Decodificar respuesta del login-service
+        user_data = response.json()
+
+        print(f"🔹 Respuesta del login-service: {user_data}")
+
+        return user_data  # Devuelve los datos del usuario autenticado
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error en la conexión con el login-service: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al comunicarse con el servicio de autenticación")
+
+# Llamar a la función de prueba al iniciar el microservicio
+test_login_service_connection()

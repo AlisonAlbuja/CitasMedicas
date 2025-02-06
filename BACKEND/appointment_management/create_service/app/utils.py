@@ -1,37 +1,41 @@
-import jwt
-from fastapi import Request, HTTPException, Depends
-from jwt import ExpiredSignatureError, InvalidTokenError
+import requests
 import os
+from fastapi import HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
 
-# 🔹 Configuración del JWT, asegúrate de que coincida con `login-service`
-SECRET_KEY = "supersecretkey123"  # Usa el mismo SECRET_KEY que `login-service`
-ALGORITHM = "HS256"
+# Cargar variables de entorno
+load_dotenv()
 
-def verify_doctor(request: Request):
-    """ Verifica si el usuario autenticado es un Doctor (role_id == 2). """
-    auth_header = request.headers.get('Authorization')
-    
-    if not auth_header:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
+# URL del servicio de login en AWS para validar tokens
+LOGIN_SERVICE_URL = os.getenv("LOGIN_SERVICE_URL", "http://34.202.7.176:8000/auth/validate-token")
+
+# Configuración de FastAPI para autenticación OAuth2
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+def verify_doctor(token: str = Depends(oauth2_scheme)):
+    """
+    Valida si el usuario autenticado tiene permisos de doctor consultando el servicio de login en AWS.
+    """
+    if not token:
+        raise HTTPException(status_code=401, detail="Token requerido")
 
     try:
-        # Extraer token del formato "Bearer <token>"
-        token = auth_header.split(" ")[1]
-    except IndexError:
-        raise HTTPException(status_code=401, detail="Invalid token format")
+        # Hacer la petición al servicio de login para validar el token
+        response = requests.get(LOGIN_SERVICE_URL, headers={"Authorization": f"Bearer {token}"})
 
-    try:
-        # Decodificar el token
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        role_id = payload.get('role_id')
-        
-        # 🔹 Solo permite acceso a los doctores
+        if response.status_code != 200:
+            raise HTTPException(status_code=401, detail="Token inválido o expirado")
+
+        # Obtener los datos del usuario autenticado
+        user_data = response.json()
+        role_id = user_data.get("role_id")
+
+        # Solo los doctores (role_id=2) pueden acceder
         if role_id != 2:
-            raise HTTPException(status_code=403, detail="Access restricted to doctors")
+            raise HTTPException(status_code=403, detail="Acceso denegado. Solo doctores pueden acceder.")
+        
+        return user_data  # Retorna los datos del usuario autenticado
 
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    return payload  # Devuelve la información del usuario autenticado
+    except requests.exceptions.RequestException:
+        raise HTTPException(status_code=500, detail="Error al comunicarse con el servicio de autenticación")
