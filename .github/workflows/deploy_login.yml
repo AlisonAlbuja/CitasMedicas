@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: amazon-linux-latest
 
     steps:
     - name: 📥 Clonar el código
@@ -45,14 +45,14 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: amazon-linux-latest
 
     steps:
     - name: 🚀 Desplegar en EC2
       uses: appleboy/ssh-action@v0.1.8
       with:
         host: ${{ secrets.EC2_HOST_LOGIN }}
-        username: ubuntu
+        username: amazon-linux
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
