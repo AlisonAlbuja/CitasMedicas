@@ -7,7 +7,7 @@ app = FastAPI()
 # 🔹 Endpoint raíz para verificar que el servicio está corriendo
 @app.get("/")
 async def root():
-    return JSONResponse(content={"message": "Microservicio de creación de citas funcionando correctamente 🚀"})
+    return JSONResponse(content={"message": "Appointment creation microservice working correctly"})
 
 # 🔹 Registrar el router de creación de citas
 app.include_router(create_router, prefix="/api/v1")
