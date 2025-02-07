@@ -4,7 +4,7 @@ from app.routers.create import router as create_router
 
 app = FastAPI()
 
-# 🔹 Endpoint raíz para verificar que el servicio está corriendo
+# 🔹 Root endpoint to verify that the service is running
 @app.get("/")
 async def root():
     return JSONResponse(content={"message": "Appointment creation microservice working correctly"})
