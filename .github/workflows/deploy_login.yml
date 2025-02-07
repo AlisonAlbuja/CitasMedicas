@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: amazon-latest
 
     steps:
     - name: Checkout code
@@ -41,14 +41,14 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: amazon-latest
 
     steps:
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
       with:
         host: ${{ secrets.EC2_HOST_LOGIN }}
-        username: ubuntu
+        username: amazon
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
@@ -59,7 +59,7 @@ jobs:
             sudo apt install -y docker.io
             sudo systemctl start docker
             sudo systemctl enable docker
-            sudo usermod -aG docker ubuntu
+            sudo usermod -aG docker amazon
             newgrp docker
           fi
 

@@ -1,14 +1,14 @@
-name: Docker Image CI/CD for Create Appointment Service
+name: Docker Image CI/CD for Update Appointment Service
 
 on:
   push:
     branches:
       - test
     paths:
-      - 'BACKEND/appointment_management/create_service/**'
+      - 'BACKEND/appointment_management/update_service/**'
   pull_request:
     paths:
-      - 'BACKEND/appointment_management/create_service/**'
+      - 'BACKEND/appointment_management/update_service/**'
     branches: ["test", "main"]
 
 jobs:
@@ -36,32 +36,32 @@ jobs:
     # 🐳 Paso 4: Construcción de la imagen Docker
     - name: Build Docker image
       run: |
-        docker build $GITHUB_WORKSPACE/BACKEND/appointment_management/create_service/. \
-          --file $GITHUB_WORKSPACE/BACKEND/appointment_management/create_service/Dockerfile \
+        docker build $GITHUB_WORKSPACE/BACKEND/appointment_management/update_service/. \
+          --file $GITHUB_WORKSPACE/BACKEND/appointment_management/update_service/Dockerfile \
           --build-arg DB_HOST=${{ secrets.DB_HOST }} \
           --build-arg DB_USER=${{ secrets.DB_USER }} \
           --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           --build-arg DB_NAME=${{ secrets.DB_NAME }} \
           --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }} \
-          -t ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_UPDATE_SERVICE }} \
+          -t ${{ secrets.DOCKER_USERNAME }}/update_service:latest
 
     # 📤 Paso 5: Subir la imagen a Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/update_service:latest
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: amazon-latest
 
     steps:
     # 📡 Paso 1: Conectar al servidor EC2 usando SSH
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secrets.EC2_HOST_CREATE_SERVICE }}
-        username: ubuntu
+        host: ${{ secrets.EC2_HOST_UPDATE_SERVICE }}
+        username: amazon
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
@@ -71,11 +71,11 @@ jobs:
           echo "export DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ~/.bashrc
           echo "export DB_NAME=${{ secrets.DB_NAME }}" >> ~/.bashrc
           echo "export DB_PORT=${{ secrets.DB_PORT }}" >> ~/.bashrc
-          echo "export SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }}" >> ~/.bashrc
+          echo "export SERVER_PORT=${{ secrets.SERVER_PORT_UPDATE_SERVICE }}" >> ~/.bashrc
           source ~/.bashrc
 
           echo "📦 Navegando al directorio del proyecto..."
-          cd ~/appHospital/BACKEND/appointment_management/create_service
+          cd ~/appHospital/BACKEND/appointment_management/update_service
 
           echo "🛠️ Verificando si Docker está instalado..."
           if ! command -v docker &> /dev/null; then
@@ -83,31 +83,31 @@ jobs:
             sudo apt update -y
             sudo apt install -y docker.io
             sudo systemctl start docker
-            sudo usermod -aG docker ubuntu
+            sudo usermod -aG docker amazon
           fi
 
           echo "🛑 Deteniendo y eliminando contenedor previo..."
-          sudo docker stop create_service || true
-          sudo docker rm create_service || true
+          sudo docker stop update_service || true
+          sudo docker rm update_service || true
           
           echo "⬇️ Descargando la última imagen desde Docker Hub..."
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/update_service:latest
           
-          echo "🚀 Ejecutando el nuevo contenedor en el puerto ${{ secrets.SERVER_PORT_CREATE_SERVICE }}..."
+          echo "🚀 Ejecutando el nuevo contenedor en el puerto ${{ secrets.SERVER_PORT_UPDATE_SERVICE }}..."
           sudo docker run -d \
-            --name create_service \
-            -p 8001:8001 \
+            --name update_service \
+            -p 8003:8003 \
             -e DB_HOST=${{ secrets.DB_HOST }} \
             -e DB_USER=${{ secrets.DB_USER }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e DB_NAME=${{ secrets.DB_NAME }} \
             -e DB_PORT=${{ secrets.DB_PORT }} \
-            -e SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }} \
-            ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+            -e SERVER_PORT=${{ secrets.SERVER_PORT_UPDATE_SERVICE }} \
+            ${{ secrets.DOCKER_USERNAME }}/update_service:latest
 
           echo "🔍 Verificando si el contenedor está corriendo..."
-          if sudo docker ps -f name=create_service | grep create_service; then
-            echo "✅ Contenedor 'create_service' corriendo correctamente."
+          if sudo docker ps -f name=update_service | grep update_service; then
+            echo "✅ Contenedor 'update_service' corriendo correctamente."
           else
             echo "❌ Error al iniciar el contenedor. Revisa los logs."
             exit 1
