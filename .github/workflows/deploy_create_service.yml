@@ -1,114 +1,99 @@
-name: Docker Image CI/CD for Create Appointment Service
+name: Docker Image CI/CD for Login Service
 
 on:
   push:
     branches:
-      - test
+      - Folder-Organization  
     paths:
-      - 'BACKEND/appointment_management/create_service/**'
+      - 'BACKEND/auth/login/**'
   pull_request:
+    branches:
+      - Folder-Organization  
+      - test
+      - main
     paths:
-      - 'BACKEND/appointment_management/create_service/**'
-    branches: ["test", "main"]
+      - 'BACKEND/auth/login/**'
+  workflow_dispatch:  # 🔥 Permite ejecución manual desde GitHub Actions
 
 jobs:
   build:
-    runs-on: amazon-latest
+    runs-on: ubuntu-latest
 
     steps:
-    # 📥 Paso 1: Checkout del repositorio
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 🛠️ Paso 2: Verificar estructura del repositorio en GitHub Actions
-    - name: Debug repository structure
-      run: |
-        echo "📂 Listando archivos en el workspace..."
-        ls -R $GITHUB_WORKSPACE
-
-    # 🔑 Paso 3: Login en Docker Hub
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # 🐳 Paso 4: Construcción de la imagen Docker
     - name: Build Docker image
       run: |
-        docker build $GITHUB_WORKSPACE/BACKEND/appointment_management/create_service/. \
-          --file $GITHUB_WORKSPACE/BACKEND/appointment_management/create_service/Dockerfile \
-          --build-arg DB_HOST=${{ secrets.DB_HOST }} \
-          --build-arg DB_USER=${{ secrets.DB_USER }} \
-          --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          --build-arg DB_NAME=${{ secrets.DB_NAME }} \
-          --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }} \
-          -t ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+        docker build $GITHUB_WORKSPACE/BACKEND/auth/login/. \
+          --file $GITHUB_WORKSPACE/BACKEND/auth/login/Dockerfile \
+          -t ${{ secrets.DOCKER_USERNAME }}/login:latest
 
-    # 📤 Paso 5: Subir la imagen a Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
 
   deploy:
     needs: build
-    runs-on: amazon-latest
+    runs-on: ubuntu-latest
 
     steps:
-    # 📡 Paso 1: Conectar al servidor EC2 usando SSH
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secrets.EC2_HOST_CREATE_SERVICE }}
-        username: amazon
+        host: ${{ secrets.EC2_HOST_LOGIN }}
+        username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          echo "🔄 Exportando variables de entorno..."
-          echo "export DB_HOST=${{ secrets.DB_HOST }}" >> ~/.bashrc
-          echo "export DB_USER=${{ secrets.DB_USER }}" >> ~/.bashrc
-          echo "export DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ~/.bashrc
-          echo "export DB_NAME=${{ secrets.DB_NAME }}" >> ~/.bashrc
-          echo "export DB_PORT=${{ secrets.DB_PORT }}" >> ~/.bashrc
-          echo "export SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }}" >> ~/.bashrc
-          source ~/.bashrc
-
-          echo "📦 Navegando al directorio del proyecto..."
-          cd ~/appHospital/BACKEND/appointment_management/create_service
-
-          echo "🛠️ Verificando si Docker está instalado..."
+          echo "🔄 Verificando Docker..."
           if ! command -v docker &> /dev/null; then
             echo "🔧 Instalando Docker..."
             sudo apt update -y
             sudo apt install -y docker.io
             sudo systemctl start docker
-            sudo usermod -aG docker amazon
+            sudo systemctl enable docker
+            sudo usermod -aG docker ubuntu
+            newgrp docker
           fi
 
-          echo "🛑 Deteniendo y eliminando contenedor previo..."
-          sudo docker stop create_service || true
-          sudo docker rm create_service || true
-          
-          echo "⬇️ Descargando la última imagen desde Docker Hub..."
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/create_service:latest
-          
-          echo "🚀 Ejecutando el nuevo contenedor en el puerto ${{ secrets.SERVER_PORT_CREATE_SERVICE }}..."
+          echo "🛑 Eliminando contenedor anterior..."
+          sudo docker stop login || true
+          sudo docker rm login || true
+
+          echo "⬇ Descargando la nueva imagen..."
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/login:latest
+
+          echo "🚀 Iniciando el contenedor..."
           sudo docker run -d \
-            --name create_service \
-            -p 8001:8001 \
+            --name login \
+            --restart unless-stopped \
+            -p ${{ secrets.SERVER_PORT_LOGIN }}:${{ secrets.SERVER_PORT_LOGIN }} \
             -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
             -e DB_USER=${{ secrets.DB_USER }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e DB_NAME=${{ secrets.DB_NAME }} \
-            -e DB_PORT=${{ secrets.DB_PORT }} \
-            -e SERVER_PORT=${{ secrets.SERVER_PORT_CREATE_SERVICE }} \
-            ${{ secrets.DOCKER_USERNAME }}/create_service:latest
+            -e DOCTOR_DB_HOST=${{ secrets.DOCTOR_DB_HOST }} \
+            -e DOCTOR_DB_PORT=${{ secrets.DOCTOR_DB_PORT }} \
+            -e DOCTOR_DB_USER=${{ secrets.DOCTOR_DB_USER }} \
+            -e DOCTOR_DB_PASSWORD=${{ secrets.DOCTOR_DB_PASSWORD }} \
+            -e DOCTOR_DB_NAME=${{ secrets.DOCTOR_DB_NAME }} \
+            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+            -e SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
+            ${{ secrets.DOCKER_USERNAME }}/login:latest
 
           echo "🔍 Verificando si el contenedor está corriendo..."
-          if sudo docker ps -f name=create_service | grep create_service; then
-            echo "✅ Contenedor 'create_service' corriendo correctamente."
+          if sudo docker ps -f name=login | grep login; then
+            echo "✅ Contenedor 'login' corriendo correctamente."
           else
-            echo "❌ Error al iniciar el contenedor. Revisa los logs."
+            echo "❌ Error al iniciar el contenedor. Verifica logs."
             exit 1
-          fi
+          fi  
