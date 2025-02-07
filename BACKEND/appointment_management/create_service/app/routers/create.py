@@ -8,7 +8,7 @@ router = APIRouter()
 @router.post("/create")
 async def create_appointment(
     appointment: Appointment, 
-    user: dict = Depends(verify_doctor)  # 🔥 Solo Doctores pueden crear citas
+    user: dict = Depends(verify_doctor)  # 🔥 Only Doctors can create appointments
 ):
     """ Crea una nueva cita si el usuario autenticado es un Doctor. """
     
