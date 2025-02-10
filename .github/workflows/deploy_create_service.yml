@@ -7,7 +7,7 @@ on:
     paths:
       - 'BACKEND/appointment_management/create_service/**'
   pull_request:
-    branches: ["Folder-Organization", "main"]
+    branches: ["Folder-Organization"]
     paths:
       - 'BACKEND/appointment_management/create_service/**'
 
