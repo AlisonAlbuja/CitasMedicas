@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from app.database.mysql import get_connection
 from app.models.appointment import Appointment
-from app.utils import verify_doctor  # ✅ Importamos la validación de JWT
+from app.utils import verify_doctor  # ✅ We import the JWT validation
 
 router = APIRouter()
 
@@ -9,22 +9,22 @@ router = APIRouter()
 async def update_appointment(
     appointment_id: int, 
     appointment: Appointment, 
-    user: dict = Depends(verify_doctor)  # 🔥 Solo Doctores pueden actualizar citas
+    user: dict = Depends(verify_doctor)  # 🔥 Only Doctors can update appointments
 ):
-    """ Actualiza una cita si el usuario autenticado es un Doctor. """
+    """ Update an appointment if the authenticated user is a Doctor. """
 
     connection = get_connection()
     if not connection:
-        raise HTTPException(status_code=500, detail="Error en la conexión a la base de datos")
+        raise HTTPException(status_code=500, detail="Error connecting to database")
 
     cursor = connection.cursor()
     try:
-        # Verificar que la cita existe antes de actualizar
+        # Verify that the appointment exists before updating
         cursor.execute("SELECT id FROM appointments WHERE id = %s", (appointment_id,))
         existing_appointment = cursor.fetchone()
 
         if not existing_appointment:
-            raise HTTPException(status_code=404, detail="Cita no encontrada")
+            raise HTTPException(status_code=404, detail="Quote not found")
 
         query = """
             UPDATE appointments 
@@ -35,10 +35,10 @@ async def update_appointment(
         cursor.execute(query, values)
         connection.commit()
 
-        return {"message": "Cita actualizada correctamente ✅"}
+        return {"message": "Citation updated successfully ✅"}
     except Exception as err:
         connection.rollback()
-        raise HTTPException(status_code=500, detail=f"Error en la BD: {str(err)}")
+        raise HTTPException(status_code=500, detail=f"Error in BD: {str(err)}")
     finally:
         cursor.close()
         connection.close()
