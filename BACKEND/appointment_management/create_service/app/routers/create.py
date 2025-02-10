@@ -10,7 +10,7 @@ async def create_appointment(
     appointment: Appointment, 
     user: dict = Depends(verify_doctor)  # 🔥 Only Doctors can create appointments
 ):
-    """ Crea una nueva cita si el usuario autenticado es un Doctor. """
+    """ Create a new appointment if the authenticated user is a Doctor. """
     
     connection = get_connection()
     if not connection:
