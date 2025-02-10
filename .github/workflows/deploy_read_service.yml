@@ -75,7 +75,7 @@ jobs:
         # Run new container
         sudo docker run -d \
           --name read_service \
-          -p 8001:8001 \
+          -p 8002:8002 \
           -e DB_HOST=${{ secrets.DB_HOST }} \
           -e DB_USER=${{ secrets.DB_USER }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
