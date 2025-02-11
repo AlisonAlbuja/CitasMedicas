@@ -28,7 +28,7 @@ jobs:
     - name: Debug Repository Structure
       run: ls -R $GITHUB_WORKSPACE
 
-    - name: Build and Push Docker Image
+      - name: Build and Push Docker Image
       run: |
         docker build \
           -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
