@@ -24,23 +24,18 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        
+
     - name: Build and Push Docker Image
       run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
-            -f BACKEND/auth/login/Dockerfile \
-            --build-arg DB_HOST=${{ secrets.DB_HOST_AUTH }} \
-            --build-arg DB_USER=${{ secrets.DB_USER_AUTH }} \
-            --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
-            --build-arg DB_NAME=${{ secrets.DB_NAME_AUTH }} \
-            --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-            --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
-            BACKEND/auth/login  # 🔥 El contexto debe ser una carpeta válida
-    
-          docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
-    
-  
+        docker build \
+          -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
+          -f BACKEND/auth/login/Dockerfile \
+          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --build-arg DOCTOR_DATABASE_URL=${{ secrets.DOCTOR_DATABASE_URL }} \
+          BACKEND/auth/login/
+
+        docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
+
   deploy-aws:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -79,12 +74,8 @@ jobs:
         sudo docker run -d \
           --name login \
           -p 8000:8000 \
-          -e DB_HOST=${{ secrets.DB_HOST_AUTH }} \
-          -e DB_USER=${{ secrets.DB_USER_AUTH }} \
-          -e DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
-          -e DB_NAME=${{ secrets.DB_NAME_AUTH }} \
-          -e DB_PORT=${{ secrets.DB_PORT }} \
-          -e SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
+          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          -e DOCTOR_DATABASE_URL=${{ secrets.DOCTOR_DATABASE_URL }} \
           -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
           -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
           -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
