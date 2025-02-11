@@ -36,8 +36,7 @@ jobs:
           --build-arg DB_PORT=${{ secrets.DB_PORT }} \
           --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
           BACKEND/auth/login/
-
-        docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
 
 
   deploy-aws:
