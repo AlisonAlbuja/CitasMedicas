@@ -7,10 +7,10 @@ import redis
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer
 
-# Cargar variables de entorno
+# load environment variables
 load_dotenv()
 
-# Conectar con Redis para invalidación de tokens
+# Connect to Redis for token invalidation
 redis_client = redis.Redis(
     host=os.getenv("REDIS_HOST", "localhost"),
     port=int(os.getenv("REDIS_PORT", 6379)),
