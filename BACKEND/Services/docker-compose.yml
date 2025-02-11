@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  notifications-service:
+    build:
+      context: ./notifications  # ✅ Apunta a la carpeta notifications
+    container_name: notifications-service
+    ports:
+      - "8060:8050"
+    env_file:
+      - ./notifications/.env  # ✅ Ahora apunta correctamente al archivo .env dentro de notifications
+    restart: unless-stopped
