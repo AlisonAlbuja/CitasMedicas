@@ -36,9 +36,10 @@ jobs:
             --build-arg DB_NAME=${{ secrets.DB_NAME_AUTH }} \
             --build-arg DB_PORT=${{ secrets.DB_PORT }} \
             --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
-            .  # 🔥 IMPORTANTE: EL PUNTO ES EL CONTEXTO DE CONSTRUCCIÓN
-  
+            BACKEND/auth/login  # 🔥 El contexto debe ser una carpeta válida
+    
           docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
+    
   
   deploy-aws:
     needs: build-and-push
