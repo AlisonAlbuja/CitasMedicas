@@ -1,15 +1,15 @@
-name: Docker Image CI/CD for Login Service
+name: Docker Image CI/CD for Login 
 
 on:
   push:
     branches:
       - Folder-Organization
     paths:
-      - 'BACKEND/appointment_management/login_service/**'
+      - 'BACKEND/auth/login/**'
   pull_request:
     branches: ["Folder-Organization"]
     paths:
-      - 'BACKEND/appointment_management/login_service/**'
+      - 'BACKEND/auth/login/**'
 
 jobs:
   build-and-push:
@@ -27,16 +27,16 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/login_service:latest \
-          --file BACKEND/appointment_management/login_service/Dockerfile \
-          BACKEND/appointment_management/login_service/ \
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
+          --file BACKEND/auth/login/Dockerfile \
+          BACKEND/auth/login/ \
           --build-arg DB_HOST=${{ secrets.DB_HOST_AUTH }} \3
           --build-arg DB_USER=${{ secrets.DB_USER_AUTH }} \
           --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
           --build-arg DB_NAME=${{ secrets.DB_NAME_AUTH }} \
           --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN_SERVICE }}
-        docker push ${{ secrets.DOCKER_USERNAME }}/login_service:latest
+          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
 
   deploy-aws:
     needs: build-and-push
@@ -50,7 +50,7 @@ jobs:
 
     - name: Deploy Docker Container on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST_LOGIN_SERVICE }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST_LOGIN }} << 'EOF'
         # login system
         sudo yum login -y
 
@@ -66,23 +66,23 @@ jobs:
         sudo systemctl enable docker
 
         # Stop and remove the existing container
-        sudo docker stop login_service || true
-        sudo docker rm login_service || true
+        sudo docker stop login || true
+        sudo docker rm login || true
 
         # Pull latest image
-        sudo docker pull ${{ secrets.DOCKER_USERNAME }}/login_service:latest
+        sudo docker pull ${{ secrets.DOCKER_USERNAME }}/login:latest
 
         # Run new container
         sudo docker run -d \
-          --name login_service \
+          --name login \
           -p 8000:8000 \
           -e DB_HOST=${{ secrets.DB_HOST_AUTH }} \
           -e DB_USER=${{ secrets.DB_USER_AUTH }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
           -e DB_NAME=${{ secrets.DB_NAME_AUTH }} \
           -e DB_PORT=${{ secrets.DB_PORT }} \
-          -e SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN_SERVICE }} \
-          ${{ secrets.DOCKER_USERNAME }}/login_service:latest
+          -e SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
+          ${{ secrets.DOCKER_USERNAME }}/login:latest
 
         # Remove unused images
         sudo docker image prune -f
