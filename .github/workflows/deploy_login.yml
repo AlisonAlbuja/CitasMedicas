@@ -27,7 +27,7 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/login:latest\
           --file BACKEND/auth/login/Dockerfile \
           BACKEND/auth/login/ \
           --build-arg DB_HOST=${{ secrets.DB_HOST_AUTH }} \3
