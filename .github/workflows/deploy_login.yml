@@ -25,20 +25,20 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Docker Image
-      run: |
-        docker build --file BACKEND/auth/login/Dockerfile \
-          --build-arg DB_HOST=${{ secrets.DB_HOST_AUTH }} \
-          --build-arg DB_USER=${{ secrets.DB_USER_AUTH }} \
-          --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
-          --build-arg DB_NAME=${{ secrets.DB_NAME_AUTH }} \
-          --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-          --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
-          -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
-          BACKEND/auth/login/
-
-        docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
-
+    - - name: Build and Push Docker Image
+    run: |
+      docker build -f BACKEND/auth/login/Dockerfile \
+        --build-arg DB_HOST=${{ secrets.DB_HOST_AUTH }} \
+        --build-arg DB_USER=${{ secrets.DB_USER_AUTH }} \
+        --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD_AUTH }} \
+        --build-arg DB_NAME=${{ secrets.DB_NAME_AUTH }} \
+        --build-arg DB_PORT=${{ secrets.DB_PORT }} \
+        --build-arg SERVER_PORT=${{ secrets.SERVER_PORT_LOGIN }} \
+        -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
+        BACKEND/auth/login/
+  
+      docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
+  
   deploy-aws:
     needs: build-and-push
     runs-on: ubuntu-latest
