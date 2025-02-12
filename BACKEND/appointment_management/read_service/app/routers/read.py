@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.database.mysql import get_connection
-from app.utils import verify_user  # ✅ Importamos la validación local del token
+from app.utils import verify_user 
 
 router = APIRouter()
 
 @router.get("/appointments", tags=["appointments"])
 async def get_appointments(user: dict = Depends(verify_user)):  
     """
-    Obtiene todas las citas almacenadas en la base de datos, autenticando al usuario.
+    Obtains all citations stored in the database, authenticating the user.
     """
     connection = get_connection()
     if not connection:
