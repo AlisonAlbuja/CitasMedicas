@@ -1,15 +1,10 @@
-name: Docker Image CI/CD for Login 
+name: Build, Push, and Deploy Login
 
 on:
   push:
-    branches:
-      - Folder-Organization
+    branches: [ "Folder-Organization" ]
     paths:
-      - 'BACKEND/auth/login/**'
-  pull_request:
-    branches: ["Folder-Organization"]
-    paths:
-      - 'BACKEND/auth/login/**'
+      - "BACKEND/auth/login/**"
 
 jobs:
   build-and-push:
@@ -24,19 +19,10 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-     
-    - name: Debug Repository Structure
-      run: ls -R $GITHUB_WORKSPACE
 
-      - name: Build and Push Docker Image
+    - name: Build and Push Docker Image
       run: |
-        docker build \
-          -t ${{ secrets.DOCKER_USERNAME }}/login:latest \
-          -f BACKEND/auth/login/Dockerfile \
-          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          --build-arg DOCTOR_DATABASE_URL=${{ secrets.DOCTOR_DATABASE_URL }} \
-          BACKEND/auth/login/
-
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/login:latest ./BACKEND/auth/login/
         docker push ${{ secrets.DOCKER_USERNAME }}/login:latest
 
   deploy-aws:
@@ -49,42 +35,37 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: Deploy Docker Container on EC2
+    - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST_LOGIN }} << 'EOF'
-        # Update system
+        # 1) Actualizar el sistema e instalar Docker si no está presente
         sudo yum update -y
-
-        # Install Docker if not present
-        if ! command -v docker &> /dev/null; then
+        if ! command -v docker &> /dev/null
+        then
+          echo "Docker no encontrado, instalando..."
           sudo yum install -y docker
           sudo systemctl start docker
           sudo systemctl enable docker
         fi
 
-        # Ensure Docker is running
-        sudo systemctl start docker
-        sudo systemctl enable docker
+        # 2) Generar el archivo .env en el servidor EC2
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+        echo "DOCTOR_DATABASE_URL=${{ secrets.DOCTOR_DATABASE_URL }}" >> .env
+        echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+        echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+        echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
 
-        # Stop and remove the existing container
-        sudo docker stop login || true
-        sudo docker rm login || true
+        # 3) Detener y eliminar contenedor previo
+        sudo docker stop login-container || true
+        sudo docker rm login-container || true
 
-        # Pull latest image
+        # 4) Descargar la nueva imagen desde Docker Hub
         sudo docker pull ${{ secrets.DOCKER_USERNAME }}/login:latest
 
-        # Run new container
-        sudo docker run -d \
-          --name login \
-          -p 8000:8000 \
-          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          -e DOCTOR_DATABASE_URL=${{ secrets.DOCTOR_DATABASE_URL }} \
-          -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-          -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-          -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
-          -e ALGORITHM=${{ secrets.ALGORITHM }} \
-          ${{ secrets.DOCKER_USERNAME }}/login:latest
+        # 5) Ejecutar el contenedor con el .env
+        sudo docker run -d --env-file .env -p 8000:8000 --name login-container ${{ secrets.DOCKER_USERNAME }}/login:latest
 
-        # Remove unused images
+        # 6) Limpiar imágenes antiguas para ahorrar espacio
         sudo docker image prune -f
         EOF
