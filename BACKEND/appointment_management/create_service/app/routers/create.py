@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from app.database.mysql import get_connection
 from app.models.appointment import Appointment
-from app.utils import verify_doctor  # ✅ Importar la validación de JWT
+from app.utils import verify_doctor  # ✅ Import JWT validation
 
 router = APIRouter()
 
