@@ -5,11 +5,11 @@ on:
     branches:
       - Folder-Organization
     paths:
-      - 'BACKEND/UserManagement/Logout/**'
+      - 'BACKEND/auth/logout/**'
   pull_request:
     branches: ['Folder-Organization']
     paths:
-      - 'BACKEND/UserManagement/Logout/**'
+      - 'BACKEND/auth/logout/**'
 
 jobs:
   build-and-push:
@@ -28,8 +28,8 @@ jobs:
     - name: Build and Push Docker Image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/logout:latest \
-          --file BACKEND/UserManagement/Logout/Dockerfile \
-          BACKEND/UserManagement/Logout/
+          --file BACKEND/auth/logout/dockerfile \
+          BACKEND/auth/logout/
         docker push ${{ secrets.DOCKER_USERNAME }}/logout:latest
 
   deploy-aws:
@@ -73,7 +73,7 @@ jobs:
           sudo docker run -d \
             --name logout \
             -p 8005:8005 \
-            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            --env-file .env \
             ${{ secrets.DOCKER_USERNAME }}/logout:latest
 
           # Remove unused images
