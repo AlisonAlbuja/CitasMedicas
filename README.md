@@ -106,21 +106,21 @@ The frontend is built using React.js and structured as follows:
 Project Structure
 
 /frontend
-│── node_modules/      # Installed dependencies
-│── public/            # Static assets and index.html
-│── src/               # Main source code
-│   │── components/    # Reusable React components
-│   │── pages/         # Page components (Login, Register, Dashboard, etc.)
-│   │── services/      # API calls and business logic
-│   │── styles/        # Styling resources
-│   │── App.js         # Main React component
-│   │── index.js       # Entry point
-│── .giPtignore         # Git ignore file
-│── docker-compose.yml # Docker configuration
-│── Dockerfile         # Docker build configuration
-│── nginx.conf         # Nginx configuration for serving the frontend
-│── package.json       # Project dependencies and scripts
-│── package-lock.json  # Dependency lock file
+- │── node_modules/      # Installed dependencies
+- │── public/            # Static assets and index.html
+- │── src/               # Main source code
+- │   │── components/    # Reusable React components
+- │   │── pages/         # Page components (Login, Register, Dashboard, etc.)
+- │   │── services/      # API calls and business logic
+- │   │── styles/        # Styling resources
+- │   │── App.js         # Main React component
+- │   │── index.js       # Entry point
+- │── .giPtignore         # Git ignore file
+- │── docker-compose.yml # Docker configuration
+- │── Dockerfile         # Docker build configuration
+- │── nginx.conf         # Nginx configuration for serving the frontend
+- │── package.json       # Project dependencies and scripts
+- │── package-lock.json  # Dependency lock file
 
 Installing Dependencies
 
