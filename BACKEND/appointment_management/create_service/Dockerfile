@@ -2,7 +2,7 @@
 FROM python:3.9
 
 # Definir el directorio de trabajo dentro del contenedor
-WORKDIR /app
+WORKDIR /appDefine the working directory within the container
 
 # Copiar el archivo requirements.txt primero (para aprovechar la caché de Docker)
 COPY requirements.txt /app/
