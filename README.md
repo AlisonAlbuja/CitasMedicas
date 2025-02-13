@@ -115,7 +115,7 @@ Project Structure
 │   │── styles/        # Styling resources
 │   │── App.js         # Main React component
 │   │── index.js       # Entry point
-│── .gitignore         # Git ignore file
+│── .giPtignore         # Git ignore file
 │── docker-compose.yml # Docker configuration
 │── Dockerfile         # Docker build configuration
 │── nginx.conf         # Nginx configuration for serving the frontend
