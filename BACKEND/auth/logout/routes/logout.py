@@ -15,7 +15,7 @@ redis_client = redis.Redis(host=redis_host, port=redis_port, decode_responses=Tr
 def logout(token: str = Depends(security)):
     """Cierra la sesión invalidando el token en Redis"""
 
-    token_key = f"blacklist:{token.credentials}"  # 🔹 Prefijo para la lista negra
+    token_key = f"blacklist:{token.credentials}"  # 🔹 Blacklist Prefix
 
     # Check if the token is already
     if redis_client.exists(token_key):
