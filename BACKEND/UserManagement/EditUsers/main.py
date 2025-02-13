@@ -14,7 +14,7 @@ def create_app():
     # Root route
     @app.route("/")
     def home():
-        return "Welcome to the user management service!"
+        return "Welcome to our software's user management service!"
 
     return app
 
