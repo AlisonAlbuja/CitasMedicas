@@ -17,7 +17,7 @@ def logout(token: str = Depends(security)):
 
     token_key = f"blacklist:{token.credentials}"  # 🔹 Prefijo para la lista negra
 
-    # Check if the token is already blacklisted
+    # Check if the token is already
     if redis_client.exists(token_key):
         raise HTTPException(status_code=400, detail="Token ya ha sido invalidado")
 
