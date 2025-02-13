@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from routes.user import user_bp
 
-# Crear instancia de la aplicación FastAPI
+# Instantiate the FastAPI app
 app = FastAPI()
 
 # Incluir las rutas del microservicio
