@@ -42,6 +42,7 @@ jobs:
       run: |
         echo "${{ secrets.EC2_SSH_KEY2 }}" > key.pem
         chmod 600 key.pem
+        
     - name: Deploy Docker Container on EC2
       run: |
           echo "${{ secrets.EC2_SSH_KEY2 }}" > key.pem
@@ -49,11 +50,12 @@ jobs:
       
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_HOST_EDIT_USERS }} << 'EOF'
             # Update system
-            sudo yum update -y
+            sudo apt update -y
+            sudo apt upgrade -y
       
             # Install Docker if not present
             if ! command -v docker &> /dev/null; then
-              sudo yum install -y docker
+              sudo apt install -y docker.io
               sudo systemctl start docker
               sudo systemctl enable docker
             fi
