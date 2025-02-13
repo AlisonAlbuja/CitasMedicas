@@ -29,8 +29,7 @@ jobs:
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/logout:latest \
           --file BACKEND/UserManagement/Logout/Dockerfile \
-          BACKEND/UserManagement/Logout/ \
-          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }}
+          BACKEND/UserManagement/Logout/
         docker push ${{ secrets.DOCKER_USERNAME }}/logout:latest
 
   deploy-aws:
@@ -45,40 +44,39 @@ jobs:
         
     - name: Deploy Docker Container on EC2
       run: |
-          echo "${{ secrets.EC2_SSH_KEY2 }}" > key.pem
-          chmod 600 key.pem
-      
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_HOST_LOGOUT }} << 'EOF'
-            # Update system
-            sudo apt update -y
-            sudo apt upgrade -y
-      
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              sudo apt install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-            fi
-      
-            # Ensure Docker is running
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_HOST_LOGOUT }} << 'EOF'
+          # Update system
+          sudo apt update -y && sudo apt upgrade -y
+
+          # Install Docker if not present
+          if ! command -v docker &> /dev/null; then
+            sudo apt install -y docker.io
             sudo systemctl start docker
             sudo systemctl enable docker
-      
-            # Stop and remove the existing container
-            sudo docker stop logout || true
-            sudo docker rm logout || true
-      
-            # Pull latest image
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/logout:latest
-      
-            # Run new container
-            sudo docker run -d \
-              --name logout \
-              -p 8005:8005 \
-              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              ${{ secrets.DOCKER_USERNAME }}/logout:latest
-      
-            # Remove unused images
-            sudo docker image prune -f
-          EOF
-      
+          fi
+
+          # Ensure Docker is running
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+          # Stop and remove the existing container
+          sudo docker stop logout || true
+          sudo docker rm logout || true
+
+          # Remove old image to avoid conflicts
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/logout:latest || true
+
+          # Pull latest image
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/logout:latest
+
+          # Run new container
+          sudo docker run -d \
+            --name logout \
+            -p 8005:8005 \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            ${{ secrets.DOCKER_USERNAME }}/logout:latest
+
+          # Remove unused images
+          sudo docker image prune -f
+        EOF
+s
