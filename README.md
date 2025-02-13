@@ -99,3 +99,7 @@ A `GraphQL-Gateway` is implemented to integrate appointment creation, retrieval,
 For inquiries or support, contact the project administrators.
 
 
+#ARCHITECTURE IMAGE
+
+![Image](https://github.com/user-attachments/assets/ce76a496-dcf4-4757-9c3b-a1792c2b6b0d)
+
