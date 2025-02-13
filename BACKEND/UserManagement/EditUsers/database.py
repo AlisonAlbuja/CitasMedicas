@@ -13,5 +13,5 @@ def configure_database(app):
         raise ValueError("DATABASE_URL is not configured in the environment variables")
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable to improve performance
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
     db.init_app(app)
