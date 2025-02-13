@@ -99,7 +99,7 @@ A `GraphQL-Gateway` is implemented to integrate appointment creation, retrieval,
 2. Create a branch for the new functionality.
 3. Submit a pull request for review.
 
-Frontend Architecture
+## Frontend Microservices Architecture
 
 The frontend is built using React.js and structured as follows:
 
@@ -156,7 +156,7 @@ Stopping the Services
 
 docker-compose down
 
-CI/CD Workflows
+## CI/CD Workflows
 
 This project includes automated CI/CD workflows using GitHub Actions for deployment. Each microservice has a dedicated workflow that handles building, pushing Docker images, and deploying to AWS EC2 instances.
 
