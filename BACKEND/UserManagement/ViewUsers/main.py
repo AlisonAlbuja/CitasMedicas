@@ -4,7 +4,7 @@ import uvicorn
 
 app = FastAPI()
 
-# Register the routes of the microservice
+# Here log microservice paths
 app.include_router(user.router)
 
 # Root route to test if the service is working
