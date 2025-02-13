@@ -3,11 +3,11 @@ name: Docker Image CI/CD for EditUsers Service
 on:
   push:
     branches:
-      - main
+      - Folder-Organization
     paths:
       - 'BACKEND/UserManagement/EditUsers/**'
   pull_request:
-    branches: ['main']
+    branches: ['Folder-Organization']
     paths:
       - 'BACKEND/UserManagement/EditUsers/**'
 
