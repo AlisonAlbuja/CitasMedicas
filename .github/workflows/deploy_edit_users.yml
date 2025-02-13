@@ -45,7 +45,7 @@ jobs:
 
     - name: Deploy Docker Container on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST_EDIT_USERS }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_HOST_EDIT_USERS }}<< 'EOF'
         # Update system
         sudo yum update -y
 
