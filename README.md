@@ -162,59 +162,53 @@ This project includes automated CI/CD workflows using GitHub Actions for deploym
 
 Available Workflows
 
-Create Service CI/CD (deploy_create_service.yml)
+- Create Service CI/CD (deploy_create_service.yml)
 
-Delete Service CI/CD (deploy_delete_service.yml)
+- Delete Service CI/CD (deploy_delete_service.yml)
 
-Delete Users Service CI/CD (deploy_delete_users.yml)
+- Delete Users Service CI/CD (deploy_delete_users.yml)
 
-Edit Users Service CI/CD (deploy_edit_users.yml)
+- Edit Users Service CI/CD (deploy_edit_users.yml)
 
-Login Service CI/CD (deploy_login.yml)
+- Login Service CI/CD (deploy_login.yml)
 
-Logout Service CI/CD (deploy_logout.yml)
+- Logout Service CI/CD (deploy_logout.yml)
 
-Read Service CI/CD (deploy_read_service.yml)
+- Read Service CI/CD (deploy_read_service.yml)
 
-Update Service CI/CD (deploy_update_service.yml)
+- Update Service CI/CD (deploy_update_service.yml)
 
-View Users Service CI/CD (deploy_view_users.yml)
+- View Users Service CI/CD (deploy_view_users.yml)
 
-Each workflow consists of the following steps:
+- Each workflow consists of the following steps:
 
-Build and Push Docker Image: Builds the Docker image and pushes it to Docker Hub.
+- Build and Push Docker Image: Builds the Docker image and pushes it to Docker Hub.
 
-Deploy to AWS EC2: Logs into an AWS EC2 instance and runs the updated container.
+- Deploy to AWS EC2: Logs into an AWS EC2 instance and runs the updated container.
 
-Environment Variables Management: Uses GitHub Secrets to securely store sensitive credentials.
+- Environment Variables Management: Uses GitHub Secrets to securely store sensitive credentials.
 
-Automated Cleanup: Prunes unused Docker images to optimize storage.
+- Automated Cleanup: Prunes unused Docker images to optimize storage.
 
 Security and Authentication
 
 All endpoints are protected by JWT, validating tokens against AWS Cognito.
 
-Only doctors (role_id=2) can create, update, or delete appointments.
+- Only doctors (role_id=2) can create, update, or delete appointments.
 
-Only administrators (role_id=1) can manage users.
+- Only administrators (role_id=1) can manage users.
 
-Secure API requests are made using Axios with token-based authorization.
+- Secure API requests are made using Axios with token-based authorization.
 
-Redis is used for JWT token invalidation in the logout service.
+- Redis is used for JWT token invalidation in the logout service.
 
-Secure database connections are ensured using environment variables.
+- Secure database connections are ensured using environment variables.
 
-Nginx is used for serving the frontend efficiently.
+- Nginx is used for serving the frontend efficiently.
 
 Database
 
 The service uses MySQL as the primary database. The connection is configured in .env:
-
-DB_HOST=appointment_db
-DB_USER=admin
-DB_PASSWORD=nala1234
-DB_NAME=appointment_management
-DB_PORT=3306
 
 API Gateway
 
@@ -230,6 +224,6 @@ Submit a pull request for review.
 
 Contact
 
-For inquiries or support, contact the project administrators.
+- For inquiries or support, contact the project administrators.
 
 
