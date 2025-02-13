@@ -79,4 +79,3 @@ jobs:
           # Remove unused images
           sudo docker image prune -f
         EOF
-s
