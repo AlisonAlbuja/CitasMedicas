@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 # Base de datos principal (Login/Admin)
 DATABASE_URL = config("DATABASE_URL")
 
-# Base de datos de doctores
+# Doctors' Database
 DOCTOR_DATABASE_URL = config("DOCTOR_DATABASE_URL")
 
 # Diccionario para manejar múltiples bases de datos
